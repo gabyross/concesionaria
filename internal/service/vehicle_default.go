@@ -3,7 +3,8 @@ package service
 import (
 	"app/internal/repository"
 	"app/pkg/models"
-	"fmt"
+
+	"strconv"
 )
 
 // NewVehicleDefault is a function that returns a new instance of VehicleDefault
@@ -32,15 +33,29 @@ func (s *VehicleDefault) AddVehicle(vehicleDoc models.VehicleDoc) (models.Vehicl
 	// set error based on resulted string
 	if err != nil {
 		if err.Error() == "Campos incompletos o mal formados" {
-			return models.Vehicle{}, fmt.Errorf("400 Bad Request: %s", err.Error())
+			return models.Vehicle{}, err
 		}
 		if err.Error() == "Identificador del vehículo ya existente" {
-			return models.Vehicle{}, fmt.Errorf("409 Conflict: %s", err.Error())
+			return models.Vehicle{}, err
 		}
 
 		return models.Vehicle{}, err
 	}
 	return vehicle, nil
+}
+
+// FindVehiclesByColorAndYear implements VehicleService.
+func (s *VehicleDefault) FindVehiclesByColorAndYear(color string, year string) (vehicles map[int]models.Vehicle, err error) {
+	yearParsed, err := strconv.Atoi(year)
+	if err != nil {
+		return make(map[int]models.Vehicle), err
+	}
+
+	vehicles, err = s.rp.FindVehiclesByColorAndYear(color, yearParsed)
+	if err != nil {
+		return make(map[int]models.Vehicle), err
+	}
+	return vehicles, nil
 }
 
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {

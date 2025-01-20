@@ -5,9 +5,9 @@ import (
 	"app/pkg/models"
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 )
 
 // NewVehicleDefault is a function that returns a new instance of VehicleDefault
@@ -62,6 +62,7 @@ func (h *VehicleDefault) GetAll() http.HandlerFunc {
 	}
 }
 
+// create a vehicle and add it to the map
 func (h *VehicleDefault) AddVehicle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// read the body
@@ -75,15 +76,62 @@ func (h *VehicleDefault) AddVehicle() http.HandlerFunc {
 
 		_, err = h.sv.AddVehicle(vehicle)
 		if err != nil {
-			if strings.Contains(err.Error(), "400") {
+			if err.Error() == "Identificador del vehículo ya existente" {
 				response.JSON(w, http.StatusConflict, err.Error())
-			} else if strings.Contains(err.Error(), "409") {
+			} else if err.Error() == "Campos incompletos o mal formados" {
 				response.JSON(w, http.StatusBadRequest, err.Error())
 			} else {
 				response.JSON(w, http.StatusInternalServerError, err.Error())
 			}
 		} else {
-			response.JSON(w, http.StatusCreated, "201 Created: Vehículo creado exitosamente")
+			response.JSON(w, http.StatusCreated, "Vehículo creado exitosamente")
 		}
+		return
+	}
+}
+
+// FindVehiclesByColorAndYear is a method that returns vehicles filtered by color and year
+func (h *VehicleDefault) FindVehiclesByColorAndYear() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// get parameters /vehicles/color/{color}/year/{year}
+		color := chi.URLParam(r, "color")
+		year := chi.URLParam(r, "year")
+
+		// - get vehicles filtered by color and year
+		v, err := h.sv.FindVehiclesByColorAndYear(color, year)
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos con esos criterios" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		// response
+		data := make(map[int]models.VehicleDoc)
+
+		for key, value := range v {
+			data[key] = models.VehicleDoc{
+				ID:              value.Id,
+				Brand:           value.Brand,
+				Model:           value.Model,
+				Registration:    value.Registration,
+				Color:           value.Color,
+				FabricationYear: value.FabricationYear,
+				Capacity:        value.Capacity,
+				MaxSpeed:        value.MaxSpeed,
+				FuelType:        value.FuelType,
+				Transmission:    value.Transmission,
+				Weight:          value.Weight,
+				Height:          value.Height,
+				Length:          value.Length,
+				Width:           value.Width,
+			}
+		}
+		response.JSON(w, http.StatusOK, map[string]any{
+			"message": "success",
+			"data":    data,
+		})
 	}
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"app/pkg/models"
 	"errors"
+	"strings"
 )
 
 // NewVehicleMap is a function that returns a new instance of VehicleMap
@@ -65,6 +66,26 @@ func (r *VehicleMap) GetVehicleById(id int) (models.Vehicle, error) {
 
 	// return vehicle without an error
 	return vehicle, nil
+}
+
+// FindVehiclesByColorAndYear implements VehicleRepository.
+func (r *VehicleMap) FindVehiclesByColorAndYear(color string, year int) (v map[int]models.Vehicle, err error) {
+	v = make(map[int]models.Vehicle)
+
+	// copy db
+	for key, value := range r.db {
+		vehicle := r.db[key]
+
+		// if match, copy vehicle
+		if strings.ToLower(vehicle.Color) == strings.ToLower(color) && vehicle.FabricationYear == year {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		return v, errors.New("No se encontraron vehículos con esos criterios")
+	}
+	return v, nil
 }
 
 func areMandatoryFieldsOK(vehicle models.Vehicle) bool {

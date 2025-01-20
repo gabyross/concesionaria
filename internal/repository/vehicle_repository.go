@@ -8,4 +8,5 @@ type VehicleRepository interface {
 	FindAll() (v map[int]models.Vehicle, err error)
 	AddVehicle(newVehicle models.Vehicle) (models.Vehicle, error)
 	GetVehicleById(id int) (models.Vehicle, error)
+	FindVehiclesByColorAndYear(color string, year int) (v map[int]models.Vehicle, err error)
 }
