@@ -3,6 +3,7 @@ package service
 import (
 	"app/internal/repository"
 	"app/pkg/models"
+	"errors"
 
 	"strconv"
 )
@@ -51,9 +52,9 @@ func (s *VehicleDefault) FindVehiclesByColorAndYear(color string, year string) (
 		return make(map[int]models.Vehicle), err
 	}
 
-	vehicles, err = s.rp.FindVehiclesByColorAndYear(color, yearParsed)
-	if err != nil {
-		return make(map[int]models.Vehicle), err
+	vehicles = s.rp.FindVehiclesByColorAndYear(color, yearParsed)
+	if len(vehicles) == 0 {
+		return make(map[int]models.Vehicle), errors.New("No se encontraron vehículos con esos criterios")
 	}
 	return vehicles, nil
 }

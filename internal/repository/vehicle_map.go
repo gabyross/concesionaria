@@ -69,7 +69,7 @@ func (r *VehicleMap) GetVehicleById(id int) (models.Vehicle, error) {
 }
 
 // FindVehiclesByColorAndYear implements VehicleRepository.
-func (r *VehicleMap) FindVehiclesByColorAndYear(color string, year int) (v map[int]models.Vehicle, err error) {
+func (r *VehicleMap) FindVehiclesByColorAndYear(color string, year int) (v map[int]models.Vehicle) {
 	v = make(map[int]models.Vehicle)
 
 	// copy db
@@ -81,11 +81,7 @@ func (r *VehicleMap) FindVehiclesByColorAndYear(color string, year int) (v map[i
 			v[key] = value
 		}
 	}
-
-	if len(v) == 0 {
-		return v, errors.New("No se encontraron vehículos con esos criterios")
-	}
-	return v, nil
+	return v
 }
 
 func areMandatoryFieldsOK(vehicle models.Vehicle) bool {
