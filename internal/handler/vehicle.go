@@ -100,6 +100,7 @@ func (h *VehicleDefault) FindVehiclesByColorAndYear() http.HandlerFunc {
 		// - get vehicles filtered by color and year
 		v, err := h.sv.FindVehiclesByColorAndYear(color, year)
 		if err != nil {
+			// specify error
 			if err.Error() == "No se encontraron vehículos con esos criterios" {
 				response.JSON(w, http.StatusNotFound, err.Error())
 			} else {
