@@ -73,6 +73,23 @@ func (s *VehicleDefault) FindVehiclesByBrandAndRangeYears(brand string, starYear
 	return v, nil
 }
 
+func (s *VehicleDefault) FindAverageOfSpeedByBrand(brand string) (average float64, err error) {
+	vehicles, err := s.rp.FindVehiclesByBrand(brand)
+	if err != nil {
+		return 0, err
+	}
+
+	for key := range vehicles {
+		average += vehicles[key].MaxSpeed
+	}
+
+	if average != 0 {
+		return average / float64(len(vehicles)), nil
+	}
+
+	return 0, errors.New("No se encontraron vehículos de esa marca")
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,

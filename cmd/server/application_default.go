@@ -78,6 +78,8 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/color/{color}/year/{year}", hd.FindVehiclesByColorAndYear())
 		// get vehicles filtered by brand and range of years
 		rt.Get("/brand/{brand}/between/{start_year}/{end_year}", hd.FindVhehiclesByBrandAndRangeYears())
+
+		rt.Get("/average_speed/brand/{brand}", hd.FindAverageOfSpeedByBrand())
 	})
 
 	// run server

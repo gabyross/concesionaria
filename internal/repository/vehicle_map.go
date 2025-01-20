@@ -95,6 +95,17 @@ func (r *VehicleMap) FindVehiclesByBrandAndRangeYears(brand string, starYear int
 	return
 }
 
+func (r *VehicleMap) FindVehiclesByBrand(brand string) (v map[int]models.Vehicle, err error) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Brand, brand) {
+			v[key] = value
+		}
+	}
+	return
+}
+
 func areMandatoryFieldsOK(vehicle models.Vehicle) bool {
 	if vehicle.Id == 0 ||
 		vehicle.Brand == "" ||
