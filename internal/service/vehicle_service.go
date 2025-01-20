@@ -8,4 +8,5 @@ type VehicleService interface {
 	FindAll() (v map[int]models.Vehicle, err error)
 	AddVehicle(vehicleDoc models.VehicleDoc) (models.Vehicle, error)
 	FindVehiclesByColorAndYear(color string, year string) (vehicles map[int]models.Vehicle, err error)
+	FindVehiclesByBrandAndRangeYears(brand string, starYear int, endYear int) (v map[int]models.Vehicle, err error)
 }

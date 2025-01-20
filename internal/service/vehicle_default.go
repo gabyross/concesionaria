@@ -59,6 +59,20 @@ func (s *VehicleDefault) FindVehiclesByColorAndYear(color string, year string) (
 	return vehicles, nil
 }
 
+func (s *VehicleDefault) FindVehiclesByBrandAndRangeYears(brand string, starYear int, endYear int) (v map[int]models.Vehicle, err error) {
+	v, err = s.rp.FindVehiclesByBrandAndRangeYears(brand, starYear, endYear)
+
+	if err != nil {
+		return make(map[int]models.Vehicle), err
+	}
+
+	if len(v) == 0 {
+		return v, errors.New("No se encontraron vehículos con esos criterios")
+	}
+
+	return v, nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,

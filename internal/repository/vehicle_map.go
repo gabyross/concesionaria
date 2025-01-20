@@ -84,6 +84,17 @@ func (r *VehicleMap) FindVehiclesByColorAndYear(color string, year int) (v map[i
 	return v
 }
 
+func (r *VehicleMap) FindVehiclesByBrandAndRangeYears(brand string, starYear int, endYear int) (v map[int]models.Vehicle, err error) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Brand, brand) && (vehicle.FabricationYear >= starYear && vehicle.FabricationYear <= endYear) {
+			v[key] = value
+		}
+	}
+	return
+}
+
 func areMandatoryFieldsOK(vehicle models.Vehicle) bool {
 	if vehicle.Id == 0 ||
 		vehicle.Brand == "" ||

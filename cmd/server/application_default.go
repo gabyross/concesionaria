@@ -76,6 +76,8 @@ func (a *ServerChi) Run() (err error) {
 		rt.Post("/", hd.AddVehicle())
 		// get vehicles filtered by color and year
 		rt.Get("/color/{color}/year/{year}", hd.FindVehiclesByColorAndYear())
+		// get vehicles filtered by brand and range of years
+		rt.Get("/brand/{brand}/between/{start_year}/{end_year}", hd.FindVhehiclesByBrandAndRangeYears())
 	})
 
 	// run server

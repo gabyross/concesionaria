@@ -5,6 +5,7 @@ import (
 	"app/pkg/models"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
@@ -134,5 +135,33 @@ func (h *VehicleDefault) FindVehiclesByColorAndYear() http.HandlerFunc {
 			"message": "success",
 			"data":    data,
 		})
+	}
+}
+
+func (h *VehicleDefault) FindVhehiclesByBrandAndRangeYears() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		brand := chi.URLParam(r, "brand")
+
+		startYear, err := strconv.Atoi(chi.URLParam(r, "start_year"))
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, "Eror al convertir año de inicio")
+		}
+
+		endYear, err := strconv.Atoi(chi.URLParam(r, "end_year"))
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, "Eror al convertir año de finalización")
+		}
+
+		vehicles, err := h.sv.FindVehiclesByBrandAndRangeYears(brand, startYear, endYear)
+
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos con esos criterios" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusOK, vehicles)
 	}
 }
