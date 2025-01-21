@@ -171,6 +171,15 @@ func (s *VehicleDefault) DeleteVehicle(id int) (err error) {
 	return nil
 }
 
+func (s *VehicleDefault) FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle, err error) {
+	v = s.rp.FindVehiclesByTransmission(transmisiion)
+	if len(v) == 0 {
+		return v, errors.New("No se encontraron vehículos con ese tipo de transmisión")
+	}
+
+	return v, nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,

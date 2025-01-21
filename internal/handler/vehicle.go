@@ -293,3 +293,20 @@ func (h *VehicleDefault) DeleteVehicle() http.HandlerFunc {
 		response.JSON(w, http.StatusNoContent, map[string]string{"message": "Vehículo eliminado exitosamente"})
 	}
 }
+
+func (h *VehicleDefault) FindVehiclesBytransmission() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		transmisiion := chi.URLParam(r, "type")
+
+		vehicles, err := h.sv.FindVehiclesByTransmission(transmisiion)
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos con ese tipo de transmisión" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusOK, vehicles)
+	}
+}

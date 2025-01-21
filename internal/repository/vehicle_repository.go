@@ -14,4 +14,5 @@ type VehicleRepository interface {
 	UpdateMaxSpeed(id int, newSpeed float64) (err error)
 	FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle)
 	DeleteVehicle(id int) (err error)
+	FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle)
 }

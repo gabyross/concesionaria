@@ -120,3 +120,14 @@ func (r *VehicleMap) DeleteVehicle(id int) (err error) {
 	delete(r.db, id)
 	return nil
 }
+
+func (r *VehicleMap) FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Transmission, transmisiion) {
+			v[key] = value
+		}
+	}
+	return v
+}

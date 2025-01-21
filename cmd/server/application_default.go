@@ -91,6 +91,7 @@ func (a *ServerChi) Run() (err error) {
 
 		rt.Delete("/{id}", hd.DeleteVehicle())
 
+		rt.Get("/transmission/{type}", hd.FindVehiclesBytransmission())
 	})
 
 	//rt.Put("/vehicles/{id}/update_speed", hd.UpdateMaxSpeed())
