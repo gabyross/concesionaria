@@ -82,7 +82,16 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/average_speed/brand/{brand}", hd.FindAverageOfSpeedByBrand())
 
 		rt.Post("/batch", hd.AddMultipleVehicles())
+
+		rt.Put("/{id}/update_speed", hd.UpdateMaxSpeed())
+
+		rt.Get("/{id}", hd.GetVehicleById())
+
+		rt.Get("/fuel_type/{type}", hd.FindVehiclesByFuel())
+
 	})
+
+	//rt.Put("/vehicles/{id}/update_speed", hd.UpdateMaxSpeed())
 
 	// run server
 	err = http.ListenAndServe(a.serverAddress, rt)

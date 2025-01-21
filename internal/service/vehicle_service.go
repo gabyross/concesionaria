@@ -11,4 +11,7 @@ type VehicleService interface {
 	FindVehiclesByBrandAndRangeYears(brand string, starYear int, endYear int) (v map[int]models.Vehicle, err error)
 	FindAverageOfSpeedByBrand(brand string) (average float64, err error)
 	AddMultipleVehicles(v []models.VehicleDoc) (err error)
+	UpdateMaxSpeed(id int, newSpeed float64) (err error)
+	GetVehicleById(id int) (models.Vehicle, error)
+	FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle, err error)
 }

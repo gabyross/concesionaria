@@ -11,4 +11,6 @@ type VehicleRepository interface {
 	FindVehiclesByColorAndYear(color string, year int) (v map[int]models.Vehicle)
 	FindVehiclesByBrandAndRangeYears(brand string, starYear int, endYear int) (v map[int]models.Vehicle, err error)
 	FindVehiclesByBrand(brand string) (v map[int]models.Vehicle, err error)
+	UpdateMaxSpeed(id int, newSpeed float64) (err error)
+	FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle)
 }

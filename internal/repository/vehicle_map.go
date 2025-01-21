@@ -89,3 +89,24 @@ func (r *VehicleMap) FindVehiclesByBrand(brand string) (v map[int]models.Vehicle
 	}
 	return
 }
+
+func (r *VehicleMap) UpdateMaxSpeed(id int, newSpeed float64) (err error) {
+	vehicle, exists := r.db[id]
+	if !exists {
+		return errors.New("Vehicle not found") // Si el vehículo no existe, devuelve un error
+	}
+	vehicle.MaxSpeed = newSpeed
+	r.db[id] = vehicle
+	return
+}
+
+func (r *VehicleMap) FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.FuelType, fuel) {
+			v[key] = value
+		}
+	}
+	return v
+}

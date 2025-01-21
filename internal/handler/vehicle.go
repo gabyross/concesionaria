@@ -208,3 +208,68 @@ func (h *VehicleDefault) AddMultipleVehicles() http.HandlerFunc {
 		response.JSON(w, http.StatusCreated, "Vehículos creados exitosamente")
 	}
 }
+
+func (h *VehicleDefault) UpdateMaxSpeed() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		}
+
+		body := r.Body
+
+		var vehicleDoc models.VehicleDoc
+		err = json.NewDecoder(body).Decode(&vehicleDoc)
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		}
+
+		err = h.sv.UpdateMaxSpeed(id, vehicleDoc.MaxSpeed)
+		if err != nil {
+			if err.Error() == "Velocidad mal formada o fuera de rango." {
+				response.JSON(w, http.StatusBadRequest, err.Error())
+			} else if err.Error() == "Vehicle not found" {
+				response.JSON(w, http.StatusNotFound, "No se encontró el vehículo")
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		response.JSON(w, http.StatusOK, "Velocidad del vehículo actualizada exitosamente")
+	}
+}
+
+func (h *VehicleDefault) GetVehicleById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		}
+
+		vehicle, err := h.sv.GetVehicleById(id)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, err.Error())
+		}
+
+		response.JSON(w, http.StatusOK, vehicle)
+	}
+}
+
+func (h *VehicleDefault) FindVehiclesByFuel() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fuel := chi.URLParam(r, "type")
+
+		vehicles, err := h.sv.FindVehiclesByFuel(fuel)
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos con ese tipo de combustible" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusBadRequest, err.Error())
+			}
+			return
+		}
+
+		response.JSON(w, http.StatusOK, vehicles)
+	}
+}

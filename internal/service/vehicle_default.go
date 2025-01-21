@@ -123,6 +123,41 @@ func (s *VehicleDefault) AddMultipleVehicles(v []models.VehicleDoc) (err error) 
 	return nil
 }
 
+func (s *VehicleDefault) UpdateMaxSpeed(id int, newSpeed float64) (err error) {
+	if newSpeed <= 0 {
+		return errors.New("Velocidad mal formada o fuera de rango.")
+	}
+
+	_, err = s.rp.GetVehicleById(id)
+	if err != nil {
+		return err
+	}
+
+	err = s.rp.UpdateMaxSpeed(id, newSpeed)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *VehicleDefault) GetVehicleById(id int) (models.Vehicle, error) {
+	vehicle, err := s.rp.GetVehicleById(id)
+	if err != nil {
+		return models.Vehicle{}, err
+	}
+	return vehicle, nil
+}
+
+func (s *VehicleDefault) FindVehiclesByFuel(fuel string) (map[int]models.Vehicle, error) {
+	v := s.rp.FindVehiclesByFuel(fuel)
+	if len(v) == 0 {
+		return make(map[int]models.Vehicle), errors.New("No se encontraron vehículos con ese tipo de combustible")
+	}
+
+	return v, nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,
