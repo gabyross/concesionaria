@@ -84,10 +84,9 @@ func (h *VehicleDefault) AddVehicle() http.HandlerFunc {
 			} else {
 				response.JSON(w, http.StatusInternalServerError, err.Error())
 			}
-		} else {
-			response.JSON(w, http.StatusCreated, "Vehículo creado exitosamente")
+			return
 		}
-		return
+		response.JSON(w, http.StatusCreated, "Vehículo creado exitosamente")
 	}
 }
 
@@ -182,5 +181,30 @@ func (h *VehicleDefault) FindAverageOfSpeedByBrand() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusOK, average)
+	}
+}
+
+func (h *VehicleDefault) AddMultipleVehicles() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body := r.Body
+		var vehicles []models.VehicleDoc
+		err := json.NewDecoder(body).Decode(&vehicles)
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		err = h.sv.AddMultipleVehicles(vehicles)
+		if err != nil {
+			if err.Error() == "Algún vehículo tiene un identificador ya existente" {
+				response.JSON(w, http.StatusConflict, err.Error())
+			} else if err.Error() == "Datos de algún vehículo mal formados o incompletos" {
+				response.JSON(w, http.StatusBadRequest, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusCreated, "Vehículos creados exitosamente")
 	}
 }

@@ -29,20 +29,27 @@ func (s *VehicleDefault) AddVehicle(vehicleDoc models.VehicleDoc) (models.Vehicl
 	// convert vehicleDoc to vehicle
 	newVehicle := mapDocToVehicle(vehicleDoc)
 
-	vehicle, err := s.rp.AddVehicle(newVehicle)
-
-	// set error based on resulted string
-	if err != nil {
-		if err.Error() == "Campos incompletos o mal formados" {
-			return models.Vehicle{}, err
-		}
-		if err.Error() == "Identificador del vehículo ya existente" {
-			return models.Vehicle{}, err
-		}
-
-		return models.Vehicle{}, err
+	// check mandatory fields
+	fieldsAreOk := areMandatoryFieldsOK(newVehicle)
+	if !fieldsAreOk {
+		return models.Vehicle{}, errors.New("Campos incompletos o mal formados")
 	}
-	return vehicle, nil
+
+	// check if the vehicle (id) already exists
+	_, err := s.rp.GetVehicleById(newVehicle.Id)
+
+	// if vehicle does not exists in the db
+	if err != nil {
+		// add new vehicle to db and return it
+		_, err = s.rp.AddVehicle(newVehicle)
+		if err != nil {
+			return models.Vehicle{}, err
+		}
+		return newVehicle, nil
+
+	} else {
+		return models.Vehicle{}, errors.New("Identificador del vehículo ya existente")
+	}
 }
 
 // FindVehiclesByColorAndYear implements VehicleService.
@@ -90,6 +97,32 @@ func (s *VehicleDefault) FindAverageOfSpeedByBrand(brand string) (average float6
 	return 0, errors.New("No se encontraron vehículos de esa marca")
 }
 
+func (s *VehicleDefault) AddMultipleVehicles(v []models.VehicleDoc) (err error) {
+	for _, vehicle := range v {
+		newVehicle := mapDocToVehicle(vehicle)
+		// check mandatory fields
+		fieldsAreOk := areMandatoryFieldsOK(newVehicle)
+		if !fieldsAreOk {
+			return errors.New("Datos de algún vehículo mal formados o incompletos")
+		}
+
+		// check if the vehicle (id) already exists
+		_, err := s.rp.GetVehicleById(newVehicle.Id)
+
+		// if vehicle exists in the db
+		if err == nil {
+			return errors.New("Algún vehículo tiene un identificador ya existente")
+		} else {
+			// add new vehicle to db and return it
+			_, err = s.rp.AddVehicle(newVehicle)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,
@@ -112,4 +145,24 @@ func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 		},
 	}
 	return vehicle
+}
+
+func areMandatoryFieldsOK(vehicle models.Vehicle) bool {
+	if vehicle.Id == 0 ||
+		vehicle.Brand == "" ||
+		vehicle.Model == "" ||
+		vehicle.Registration == "" ||
+		vehicle.Color == "" ||
+		vehicle.FabricationYear == 0 ||
+		vehicle.Capacity == 0 ||
+		vehicle.MaxSpeed == 0 ||
+		vehicle.FuelType == "" ||
+		vehicle.Transmission == "" ||
+		vehicle.Weight == 0 ||
+		vehicle.Height == 0 ||
+		vehicle.Length == 0 ||
+		vehicle.Width == 0 {
+		return false
+	}
+	return true
 }
