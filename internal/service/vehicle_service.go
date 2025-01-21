@@ -16,6 +16,5 @@ type VehicleService interface {
 	FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle, err error)
 	DeleteVehicle(id int) (err error)
 	FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle, err error)
+	UpdateFuel(id int, vehicleDoc models.VehicleDoc) (err error)
 }
-
-

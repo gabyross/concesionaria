@@ -180,6 +180,25 @@ func (s *VehicleDefault) FindVehiclesByTransmission(transmisiion string) (v map[
 	return v, nil
 }
 
+func (s *VehicleDefault) UpdateFuel(id int, vehicleDoc models.VehicleDoc) (err error) {
+	if vehicleDoc.FuelType == "" {
+		return errors.New("Tipo de combustible mal formado o no admitido")
+	}
+	_, err = s.rp.GetVehicleById(id)
+	if err != nil {
+		return err
+	}
+
+	vehicle := mapDocToVehicle(vehicleDoc)
+
+	err = s.rp.UpdateFuel(id, vehicle.FuelType)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,

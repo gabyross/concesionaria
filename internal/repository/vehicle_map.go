@@ -131,3 +131,14 @@ func (r *VehicleMap) FindVehiclesByTransmission(transmisiion string) (v map[int]
 	}
 	return v
 }
+
+func (r *VehicleMap) UpdateFuel(id int, newFuel string) (err error) {
+	vehicle, exists := r.db[id]
+	if !exists {
+		return errors.New("Vehicle not found")
+	}
+
+	vehicle.FuelType = newFuel
+	r.db[id] = vehicle
+	return nil
+}

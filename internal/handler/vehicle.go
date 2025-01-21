@@ -310,3 +310,30 @@ func (h *VehicleDefault) FindVehiclesBytransmission() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, vehicles)
 	}
 }
+
+func (h *VehicleDefault) UpdateFuel() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		}
+
+		var vehicleDoc models.VehicleDoc
+		body := r.Body
+		err = json.NewDecoder(body).Decode(&vehicleDoc)
+
+		err = h.sv.UpdateFuel(id, vehicleDoc)
+		if err != nil {
+			if err.Error() == "Vehicle not found" {
+				response.JSON(w, http.StatusNotFound, "No se encontró el vehículo")
+			} else if err.Error() == "Tipo de combustible mal formado o no admitido" {
+				response.JSON(w, http.StatusBadRequest, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusOK, "Tipo de combustible del vehículo actualizado exitosamente")
+	}
+
+}
