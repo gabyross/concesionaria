@@ -16,4 +16,5 @@ type VehicleRepository interface {
 	DeleteVehicle(id int) (err error)
 	FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle)
 	UpdateFuel(id int, newFuel string) (err error)
+	GetVehiclesByBrand(brand string) (v map[int]models.Vehicle)
 }

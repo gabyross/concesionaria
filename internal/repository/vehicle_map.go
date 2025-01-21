@@ -142,3 +142,14 @@ func (r *VehicleMap) UpdateFuel(id int, newFuel string) (err error) {
 	r.db[id] = vehicle
 	return nil
 }
+
+func (r *VehicleMap) GetVehiclesByBrand(brand string) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Brand, brand) {
+			v[key] = value
+		}
+	}
+	return v
+}

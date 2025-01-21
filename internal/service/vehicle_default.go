@@ -199,6 +199,19 @@ func (s *VehicleDefault) UpdateFuel(id int, vehicleDoc models.VehicleDoc) (err e
 	return nil
 }
 
+func (s *VehicleDefault) GetAveragePeopleCapacityByBrand(brand string) (capacity int, err error) {
+	vehicles := s.rp.GetVehiclesByBrand(brand)
+	if len(vehicles) == 0 {
+		return 0, errors.New("No se encontraron vehículos de esa marca")
+	}
+
+	for key := range vehicles {
+		capacity += vehicles[key].Capacity
+	}
+
+	return capacity / len(vehicles), nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,

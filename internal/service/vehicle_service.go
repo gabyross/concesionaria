@@ -17,4 +17,5 @@ type VehicleService interface {
 	DeleteVehicle(id int) (err error)
 	FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle, err error)
 	UpdateFuel(id int, vehicleDoc models.VehicleDoc) (err error)
+	GetAveragePeopleCapacityByBrand(brand string) (capacity int, err error)
 }

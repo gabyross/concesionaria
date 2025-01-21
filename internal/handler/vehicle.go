@@ -337,3 +337,20 @@ func (h *VehicleDefault) UpdateFuel() http.HandlerFunc {
 	}
 
 }
+
+func (h *VehicleDefault) GetAveragePeopleCapacityByBrand() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		brand := chi.URLParam(r, "brand")
+
+		average, err := h.sv.GetAveragePeopleCapacityByBrand(brand)
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos de esa marca" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusOK, average)
+	}
+}
