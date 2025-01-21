@@ -110,3 +110,13 @@ func (r *VehicleMap) FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle) 
 	}
 	return v
 }
+
+func (r *VehicleMap) DeleteVehicle(id int) (err error) {
+	_, exists := r.db[id]
+	if !exists {
+		return errors.New("Vehicle not found")
+	}
+
+	delete(r.db, id)
+	return nil
+}

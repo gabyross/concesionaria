@@ -158,6 +158,19 @@ func (s *VehicleDefault) FindVehiclesByFuel(fuel string) (map[int]models.Vehicle
 	return v, nil
 }
 
+func (s *VehicleDefault) DeleteVehicle(id int) (err error) {
+	_, err = s.rp.GetVehicleById(id)
+	if err != nil {
+		return err
+	}
+
+	err = s.rp.DeleteVehicle(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,

@@ -14,4 +14,5 @@ type VehicleService interface {
 	UpdateMaxSpeed(id int, newSpeed float64) (err error)
 	GetVehicleById(id int) (models.Vehicle, error)
 	FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle, err error)
+	DeleteVehicle(id int) (err error)
 }

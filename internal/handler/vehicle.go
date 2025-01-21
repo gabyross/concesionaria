@@ -273,3 +273,23 @@ func (h *VehicleDefault) FindVehiclesByFuel() http.HandlerFunc {
 		response.JSON(w, http.StatusOK, vehicles)
 	}
 }
+
+func (h *VehicleDefault) DeleteVehicle() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		}
+
+		err = h.sv.DeleteVehicle(id)
+		if err != nil {
+			if err.Error() == "Vehicle not found" {
+				response.JSON(w, http.StatusNotFound, "No se encontró el vehículo")
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusNoContent, map[string]string{"message": "Vehículo eliminado exitosamente"})
+	}
+}
