@@ -3,6 +3,7 @@ package repository
 import (
 	"app/pkg/models"
 	"errors"
+	"strings"
 )
 
 // NewVehicleMap is a function that returns a new instance of VehicleMap
@@ -34,32 +35,16 @@ func (r *VehicleMap) FindAll() (v map[int]models.Vehicle, err error) {
 }
 
 func (r *VehicleMap) AddVehicle(newVehicle models.Vehicle) (models.Vehicle, error) {
-	// check mandatory fields
-	ok := areMandatoryFieldsOK(newVehicle)
-	if !ok {
-		return models.Vehicle{}, errors.New("Campos incompletos o mal formados")
-	}
-
-	// check if the vehicle (id) already exists
-	_, err := r.GetVehicleById(newVehicle.Id)
-
-	// if vehicle does not exists in the db
-	if err != nil {
-		// add new vehicle to db and return it
-		r.db[newVehicle.Id] = newVehicle
-		return newVehicle, nil
-	}
-
-	// in case the vehicle already exists, return an error
-	return models.Vehicle{}, errors.New("Identificador del vehículo ya existente")
+	r.db[newVehicle.Id] = newVehicle
+	return newVehicle, nil
 }
 
 func (r *VehicleMap) GetVehicleById(id int) (models.Vehicle, error) {
 	// try to get the vehicle form the db by its key
-	vehicle, ok := r.db[id]
+	vehicle, exists := r.db[id]
 
 	// check if the vehicle was found
-	if !ok {
+	if !exists {
 		return models.Vehicle{}, errors.New("Vehicle not found")
 	}
 
@@ -67,22 +52,126 @@ func (r *VehicleMap) GetVehicleById(id int) (models.Vehicle, error) {
 	return vehicle, nil
 }
 
-func areMandatoryFieldsOK(vehicle models.Vehicle) bool {
-	if vehicle.Id == 0 ||
-		vehicle.Brand == "" ||
-		vehicle.Model == "" ||
-		vehicle.Registration == "" ||
-		vehicle.Color == "" ||
-		vehicle.FabricationYear == 0 ||
-		vehicle.Capacity == 0 ||
-		vehicle.MaxSpeed == 0 ||
-		vehicle.FuelType == "" ||
-		vehicle.Transmission == "" ||
-		vehicle.Weight == 0 ||
-		vehicle.Height == 0 ||
-		vehicle.Length == 0 ||
-		vehicle.Width == 0 {
-		return false
+// FindVehiclesByColorAndYear implements VehicleRepository.
+func (r *VehicleMap) FindVehiclesByColorAndYear(color string, year int) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+
+	// copy db
+	for key, value := range r.db {
+		vehicle := r.db[key]
+
+		// if match, copy vehicle
+		if strings.ToLower(vehicle.Color) == strings.ToLower(color) && vehicle.FabricationYear == year {
+			v[key] = value
+		}
 	}
-	return true
+	return v
+}
+
+func (r *VehicleMap) FindVehiclesByBrandAndRangeYears(brand string, starYear int, endYear int) (v map[int]models.Vehicle, err error) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Brand, brand) && (vehicle.FabricationYear >= starYear && vehicle.FabricationYear <= endYear) {
+			v[key] = value
+		}
+	}
+	return
+}
+
+func (r *VehicleMap) FindVehiclesByBrand(brand string) (v map[int]models.Vehicle, err error) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Brand, brand) {
+			v[key] = value
+		}
+	}
+	return
+}
+
+func (r *VehicleMap) UpdateMaxSpeed(id int, newSpeed float64) (err error) {
+	vehicle, exists := r.db[id]
+	if !exists {
+		return errors.New("Vehicle not found") // Si el vehículo no existe, devuelve un error
+	}
+	vehicle.MaxSpeed = newSpeed
+	r.db[id] = vehicle
+	return
+}
+
+func (r *VehicleMap) FindVehiclesByFuel(fuel string) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.FuelType, fuel) {
+			v[key] = value
+		}
+	}
+	return v
+}
+
+func (r *VehicleMap) DeleteVehicle(id int) (err error) {
+	_, exists := r.db[id]
+	if !exists {
+		return errors.New("Vehicle not found")
+	}
+
+	delete(r.db, id)
+	return nil
+}
+
+func (r *VehicleMap) FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Transmission, transmisiion) {
+			v[key] = value
+		}
+	}
+	return v
+}
+
+func (r *VehicleMap) UpdateFuel(id int, newFuel string) (err error) {
+	vehicle, exists := r.db[id]
+	if !exists {
+		return errors.New("Vehicle not found")
+	}
+
+	vehicle.FuelType = newFuel
+	r.db[id] = vehicle
+	return nil
+}
+
+func (r *VehicleMap) GetVehiclesByBrand(brand string) (v map[int]models.Vehicle) {
+	v = make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if strings.EqualFold(vehicle.Brand, brand) {
+			v[key] = value
+		}
+	}
+	return v
+}
+
+func (r *VehicleMap) FindVehiclesByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) map[int]models.Vehicle {
+	vehicles := make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if vehicle.Length >= minLength && vehicle.Length <= maxLength && vehicle.Width >= minWidth && vehicle.Width <= maxWidth {
+			vehicles[key] = value
+		}
+	}
+	return vehicles
+}
+
+func (r *VehicleMap) FindVehiclesByWeigth(minWeigth float64, maxWeigth float64) map[int]models.Vehicle {
+	vehicles := make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if vehicle.Weight >= minWeigth && vehicle.Weight <= maxWeigth {
+			vehicles[key] = value
+		}
+	}
+	return vehicles
 }

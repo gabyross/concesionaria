@@ -74,6 +74,32 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/", hd.GetAll())
 		// - POST /vehicles
 		rt.Post("/", hd.AddVehicle())
+		// get vehicles filtered by color and year
+		rt.Get("/color/{color}/year/{year}", hd.FindVehiclesByColorAndYear())
+		// get vehicles filtered by brand and range of years
+		rt.Get("/brand/{brand}/between/{start_year}/{end_year}", hd.FindVhehiclesByBrandAndRangeYears())
+
+		rt.Get("/average_speed/brand/{brand}", hd.FindAverageOfSpeedByBrand())
+
+		rt.Post("/batch", hd.AddMultipleVehicles())
+
+		rt.Put("/{id}/update_speed", hd.UpdateMaxSpeed())
+
+		rt.Get("/{id}", hd.GetVehicleById())
+
+		rt.Get("/fuel_type/{type}", hd.FindVehiclesByFuel())
+
+		rt.Delete("/{id}", hd.DeleteVehicle())
+
+		rt.Get("/transmission/{type}", hd.FindVehiclesBytransmission())
+
+		rt.Put("/{id}/update_fuel", hd.UpdateFuel())
+
+		rt.Get("/average_capacity/brand/{brand}", hd.GetAveragePeopleCapacityByBrand())
+
+		rt.Get("/dimensions", hd.FindVehiclesByDimensions())
+
+		rt.Get("/weight", hd.FindVehiclesByWeigth())
 	})
 
 	// run server
