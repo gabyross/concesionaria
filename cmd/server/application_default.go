@@ -96,9 +96,11 @@ func (a *ServerChi) Run() (err error) {
 		rt.Put("/{id}/update_fuel", hd.UpdateFuel())
 
 		rt.Get("/average_capacity/brand/{brand}", hd.GetAveragePeopleCapacityByBrand())
-	})
 
-	//rt.Put("/vehicles/{id}/update_speed", hd.UpdateMaxSpeed())
+		rt.Get("/dimensions", hd.FindVehiclesByDimensions())
+
+		rt.Get("/weight", hd.FindVehiclesByWeigth())
+	})
 
 	// run server
 	err = http.ListenAndServe(a.serverAddress, rt)

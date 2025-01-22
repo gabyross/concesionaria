@@ -17,4 +17,6 @@ type VehicleRepository interface {
 	FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle)
 	UpdateFuel(id int, newFuel string) (err error)
 	GetVehiclesByBrand(brand string) (v map[int]models.Vehicle)
+	FindVehiclesByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) map[int]models.Vehicle
+	FindVehiclesByWeigth(minWeigth float64, maxWeigth float64) map[int]models.Vehicle
 }

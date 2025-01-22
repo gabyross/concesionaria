@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/bootcamp-go/web/response"
 	"github.com/go-chi/chi/v5"
@@ -352,5 +353,89 @@ func (h *VehicleDefault) GetAveragePeopleCapacityByBrand() http.HandlerFunc {
 			return
 		}
 		response.JSON(w, http.StatusOK, average)
+	}
+}
+
+func (h *VehicleDefault) FindVehiclesByDimensions() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		length := r.URL.Query().Get("length")
+		width := r.URL.Query().Get("width")
+
+		lengthRangeArr := strings.Split(length, "-")
+		widthRangeArr := strings.Split(width, "-")
+
+		if len(lengthRangeArr) != 2 || len(widthRangeArr) != 2 {
+			response.JSON(w, http.StatusBadRequest, "Rango de longitud o ancho mal formado")
+			return
+		}
+
+		minLength, err := strconv.ParseFloat(lengthRangeArr[0], 64)
+		if err != nil {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		maxLength, err := strconv.ParseFloat(lengthRangeArr[1], 64)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "Longitud máxima inválida")
+			return
+		}
+
+		minWidth, err := strconv.ParseFloat(widthRangeArr[0], 64)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "Ancho mínimo inválido")
+			return
+		}
+
+		maxWidth, err := strconv.ParseFloat(widthRangeArr[1], 64)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "Ancho máximo inválido")
+			return
+		}
+
+		vehicles, err := h.sv.FindVehiclesByDimensions(minLength, maxLength, minWidth, maxWidth)
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos con esas dimensiones" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		response.JSON(w, http.StatusOK, vehicles)
+	}
+}
+
+func (h *VehicleDefault) FindVehiclesByWeigth() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		min := r.URL.Query().Get("min")
+		max := r.URL.Query().Get("max")
+
+		if min == "" || max == "" {
+			response.JSON(w, http.StatusBadRequest, "Parámetros 'min' y 'max' son requeridos")
+			return
+		}
+
+		minWeigth, err := strconv.ParseFloat(min, 64)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "peso minimo invalido")
+		}
+
+		maxWeigth, err := strconv.ParseFloat(max, 64)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, "peso maximo invalido")
+		}
+
+		vehicles, err := h.sv.FindVehiclesByWeigth(minWeigth, maxWeigth)
+		if err != nil {
+			if err.Error() == "No se encontraron vehículos en ese rango de peso" {
+				response.JSON(w, http.StatusNotFound, err.Error())
+			} else {
+				response.JSON(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		response.JSON(w, http.StatusOK, vehicles)
 	}
 }

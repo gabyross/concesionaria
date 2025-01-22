@@ -153,3 +153,25 @@ func (r *VehicleMap) GetVehiclesByBrand(brand string) (v map[int]models.Vehicle)
 	}
 	return v
 }
+
+func (r *VehicleMap) FindVehiclesByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) map[int]models.Vehicle {
+	vehicles := make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if vehicle.Length >= minLength && vehicle.Length <= maxLength && vehicle.Width >= minWidth && vehicle.Width <= maxWidth {
+			vehicles[key] = value
+		}
+	}
+	return vehicles
+}
+
+func (r *VehicleMap) FindVehiclesByWeigth(minWeigth float64, maxWeigth float64) map[int]models.Vehicle {
+	vehicles := make(map[int]models.Vehicle)
+	for key, value := range r.db {
+		vehicle := r.db[key]
+		if vehicle.Weight >= minWeigth && vehicle.Weight <= maxWeigth {
+			vehicles[key] = value
+		}
+	}
+	return vehicles
+}

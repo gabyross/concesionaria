@@ -18,4 +18,6 @@ type VehicleService interface {
 	FindVehiclesByTransmission(transmisiion string) (v map[int]models.Vehicle, err error)
 	UpdateFuel(id int, vehicleDoc models.VehicleDoc) (err error)
 	GetAveragePeopleCapacityByBrand(brand string) (capacity int, err error)
+	FindVehiclesByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) (map[int]models.Vehicle, error)
+	FindVehiclesByWeigth(minWeigth float64, maxWeigth float64) (map[int]models.Vehicle, error)
 }

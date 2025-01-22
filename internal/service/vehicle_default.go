@@ -212,6 +212,22 @@ func (s *VehicleDefault) GetAveragePeopleCapacityByBrand(brand string) (capacity
 	return capacity / len(vehicles), nil
 }
 
+func (s *VehicleDefault) FindVehiclesByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) (map[int]models.Vehicle, error) {
+	vehicles := s.rp.FindVehiclesByDimensions(minLength, maxLength, minWidth, maxWidth)
+	if len(vehicles) == 0 {
+		return vehicles, errors.New("No se encontraron vehículos con esas dimensiones")
+	}
+	return vehicles, nil
+}
+
+func (s *VehicleDefault) FindVehiclesByWeigth(minWeigth float64, maxWeigth float64) (v map[int]models.Vehicle, err error) {
+	vehicles := s.rp.FindVehiclesByWeigth(minWeigth, maxWeigth)
+	if len(vehicles) == 0 {
+		return v, errors.New("No se encontraron vehículos en ese rango de peso")
+	}
+	return vehicles, nil
+}
+
 func mapDocToVehicle(doc models.VehicleDoc) models.Vehicle {
 	vehicle := models.Vehicle{
 		Id: doc.ID,
